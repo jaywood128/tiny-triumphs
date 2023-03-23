@@ -11,7 +11,7 @@ Tech Stack
 
 Authentication
 
- - Auth0 Java SDK
+ - Authorization Code Grant
  - JWTs 
  - Refresh Tokens 
  - Google login
