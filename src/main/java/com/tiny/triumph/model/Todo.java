@@ -1,9 +1,14 @@
 package com.tiny.triumph.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "todo")
@@ -13,11 +18,13 @@ public class Todo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int id;
 
+    @JsonIgnore
     @ManyToOne
     // @JoinColumn annotation defines the actual physical mapping on the owning side //
     @JoinColumn(name="user_id")
     public User user;
 
+    @NotEmpty(message = "Description required")
     public String description;
     @Column(name = "is_complete")
     boolean isComplete;
@@ -32,6 +39,13 @@ public class Todo {
     }
 
     public Todo(String description, boolean isComplete, LocalDateTime dueDate, User user) {
+        this.description = description;
+        this.isComplete = isComplete;
+        this.dueDate = dueDate;
+        this.user = user;
+    }
+    public Todo(int id, String description, boolean isComplete, LocalDateTime dueDate, User user) {
+        this.id = id;
         this.description = description;
         this.isComplete = isComplete;
         this.dueDate = dueDate;
@@ -60,6 +74,44 @@ public class Todo {
 
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void addTodo(Todo todo, User user){
+        user.todos.add(todo);
+       for(Todo todo1 : user.todos){
+           System.out.println(todo1.getId() + " " + todo1.getDescription() + " " + todo1.getDueDate());
+       }
+    }
+
+    public User updateTodo(int todoId, User user, Todo newTodo){
+        // Find todo we want to update
+        Todo updateMe = user.todos.stream()
+                .filter(t -> t.getId() == todoId)
+                .findFirst()
+                .orElseThrow();
+
+        List<Todo> updatedTodos = new ArrayList<>();
+        User newUser = new User(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(), updatedTodos);
+        // copy existing todos
+        List<Todo> existingTodos =  user.todos.stream().filter(t -> t.getId() != todoId)
+                .collect(Collectors.toList());
+        for(Todo todo1 : existingTodos){
+            newUser.todos.add(todo1);
+        }
+        updatedTodos.add(newTodo);
+        return newUser;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override

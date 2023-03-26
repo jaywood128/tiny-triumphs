@@ -1,6 +1,7 @@
 package com.tiny.triumph.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.ArrayList;
@@ -21,11 +22,22 @@ public class User {
     @NotEmpty(message = "Last name is required")
     @Column(name = "last_name")
     public String lastName;
-
+    @Email(message = "Email should be valid")
+    @Column(unique=true)
     public String email;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     public List<Todo> todos = new ArrayList<>();
+
+    public User(int id, String firstName, String lastName, String email, List<Todo> updatedTodos) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.todos = updatedTodos;
+    }
+    public User() {
+        // default constructor with no parameters
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -39,6 +51,15 @@ public class User {
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, email);
     }
+
+    public Todo withIsCompleted(boolean isComplete, int todoId) {
+        Todo todo = (Todo) this.todos.stream().filter(todoArg -> todoArg.getId() == todoId);
+        return new Todo(todo.getDescription(), isComplete, todo.getDueDate(), this);
+    }
+
+//    public Todo withIsCompleted(boolean isCompleted) {
+//        return new Todo(this this.description, isCompleted);
+//    }
 
     public String getFirstName() {
         return firstName;
