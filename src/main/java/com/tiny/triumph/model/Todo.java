@@ -1,14 +1,14 @@
-package com.tiny.triumph.model;
+ package com.tiny.triumph.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+ import com.fasterxml.jackson.annotation.JsonIgnore;
+ import jakarta.persistence.*;
+ import jakarta.validation.constraints.NotEmpty;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+ import java.time.LocalDateTime;
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Objects;
+ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "todo")
@@ -95,7 +95,7 @@ public class Todo {
                 .orElseThrow();
 
         List<Todo> updatedTodos = new ArrayList<>();
-        User newUser = new User(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(), updatedTodos);
+        User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), updatedTodos);
         // copy existing todos
         List<Todo> existingTodos =  user.todos.stream().filter(t -> t.getId() != todoId)
                 .collect(Collectors.toList());
@@ -103,6 +103,7 @@ public class Todo {
             newUser.todos.add(todo1);
         }
         updatedTodos.add(newTodo);
+        newUser.todos.addAll(updatedTodos);
         return newUser;
     }
 

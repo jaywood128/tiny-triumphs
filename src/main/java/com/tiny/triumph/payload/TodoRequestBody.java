@@ -1,19 +1,26 @@
 package com.tiny.triumph.payload;
 
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public class CreateTodoRequestBody {
+public class TodoRequestBody {
+
+    public int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     @NotEmpty(message = "Description required")
     public String description;
-    @NotNull(message = "isComplete required")
+    @NotNull(message = "Description required")
     public boolean isComplete;
-
-    public LocalDateTime dueDate;
 
     public String getDescription() {
         return description;
@@ -38,5 +45,6 @@ public class CreateTodoRequestBody {
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
-}
 
+    public LocalDateTime dueDate;
+}

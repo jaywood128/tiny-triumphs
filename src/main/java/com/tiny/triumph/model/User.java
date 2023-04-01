@@ -29,14 +29,21 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     public List<Todo> todos = new ArrayList<>();
 
-    public User(int id, String firstName, String lastName, String email, List<Todo> updatedTodos) {
+    public User(int id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.todos = updatedTodos;
+        this.todos = new ArrayList<>();
     }
     public User() {
         // default constructor with no parameters
+    }
+
+    public User(int id, String firstName, String lastName, String email, List<Todo> todos) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.todos = todos;
     }
 
     @Override
@@ -56,10 +63,6 @@ public class User {
         Todo todo = (Todo) this.todos.stream().filter(todoArg -> todoArg.getId() == todoId);
         return new Todo(todo.getDescription(), isComplete, todo.getDueDate(), this);
     }
-
-//    public Todo withIsCompleted(boolean isCompleted) {
-//        return new Todo(this this.description, isCompleted);
-//    }
 
     public String getFirstName() {
         return firstName;

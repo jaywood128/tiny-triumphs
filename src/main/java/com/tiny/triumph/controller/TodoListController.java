@@ -4,6 +4,8 @@ package com.tiny.triumph.controller;
 import com.tiny.triumph.exceptions.ResourceNotFoundException;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
+import com.tiny.triumph.payload.CreateTodoRequestBody;
+import com.tiny.triumph.payload.TodoRequestBody;
 import com.tiny.triumph.services.TodoService;
 import com.tiny.triumph.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +29,9 @@ public class TodoListController {
     }
 
     @PostMapping(value = "/todos/{userId}",  produces = "application/json")
-    public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody Todo todoRequest){
+    public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest){
         Optional<User> user = userService.findById(Integer.valueOf(userId));
-        // grab each field off the request body to create a new Todo
-        Todo todo = new Todo(todoRequest.getDescription(), todoRequest.isComplete(), todoRequest.getDueDate(), user.get());
+        Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), user.get());
         todoService.addTodo(Integer.valueOf(userId), todo);
         return new ResponseEntity<>(todo, HttpStatus.CREATED);
     }
@@ -53,17 +54,24 @@ public class TodoListController {
 
     // update a todo
 
-    @PutMapping (value = "/todos/{id}",  produces = "application/json")
-    public ResponseEntity<Todo> updateTodo(@PathVariable String userId, @RequestBody Todo todoRequest){
-        // Ensure user passes valid token, and the token the correct permissions
-        Optional<Todo> existingTodo = todoService.findById(Integer.valueOf(userId));
-        //Pull off each field from the request body but use the existing id of the todo
-        Todo updatedTodo = new Todo(todoRequest.getId(), todoRequest.getDescription(), todoRequest.isComplete(), todoRequest.getDueDate(), todoRequest.user);
+    @PutMapping (value = "/todo",  produces = "application/json")
+    public ResponseEntity<Todo> updateTodo(@RequestBody TodoRequestBody todoRequest){
+        // Todo Ensure user passes valid token, and the token the correct permissions
+        Optional<Todo> existingTodo = todoService.findById(todoRequest.getId());
+
+        Todo updatedTodo = new Todo(
+                existingTodo.get().getId(),
+                !todoRequest.getDescription().isEmpty() ? todoRequest.getDescription() : existingTodo.get().getDescription(),
+                todoRequest.getIsComplete() != existingTodo.get().isComplete() ? todoRequest.getIsComplete() : existingTodo.get().isComplete(),
+                todoRequest.getDueDate() != null ? todoRequest.getDueDate() : existingTodo.get().getDueDate(),
+                existingTodo.get().getUser()
+        );
+
         todoService.updateTodo(updatedTodo, existingTodo.get().getUser());
         return ResponseEntity.ok(updatedTodo);
     }
 
-    @DeleteMapping(value = "/todos/{id}",  produces = "application/json")
+    @DeleteMapping(value = "/todo/{id}",  produces = "application/json")
     public ResponseEntity<HttpStatus> deleteTodo(@PathVariable String id ){
         todoService.deleteTodo(id);
         return new ResponseEntity<>(HttpStatus.OK);

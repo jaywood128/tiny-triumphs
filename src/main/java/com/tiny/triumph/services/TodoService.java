@@ -63,18 +63,12 @@ public class TodoService {
     // This should optionally pass both the description and isCompleted
     @Transactional
     public void updateTodo(Todo updatedTodo, User user){
+        User updatedUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail());
 
-        List<Todo> updateMe = user.todos.stream().filter(todo -> todo.getId() == updatedTodo.getId()).collect(Collectors.toList());
-        Optional<Todo> existingTodo = todoRepository.findById(updatedTodo.getId());
-
-        if(existingTodo.isEmpty()){
-            throw new EntityNotFoundException("Todo with " + updatedTodo.getId() + " not found");
-        }
-        existingTodo.get().setDescription(updatedTodo.description);
-        existingTodo.get().setComplete(updatedTodo.isComplete());
-        existingTodo.get().setDueDate(updatedTodo.getDueDate());
-
-        todoRepository.save(existingTodo.get());
+        List<Todo> withoutTodo = user.todos.stream().filter(todo -> todo.getId() != updatedTodo.getId()).collect(Collectors.toList());
+        updatedUser.todos.addAll(withoutTodo);
+        updatedUser.todos.add(updatedTodo);
+        userRepository.save(updatedUser);
     }
     @Transactional
     public void deleteTodo(String id){
