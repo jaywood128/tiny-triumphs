@@ -1,8 +1,5 @@
 package com.tiny.triumph.payload;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 
 public class TodoRequestBody {
@@ -17,9 +14,8 @@ public class TodoRequestBody {
         this.id = id;
     }
 
-    @NotEmpty(message = "Description required")
     public String description;
-    @NotNull(message = "Description required")
+
     public boolean isComplete;
 
     public String getDescription() {

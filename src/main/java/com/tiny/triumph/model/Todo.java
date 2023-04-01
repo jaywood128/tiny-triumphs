@@ -2,8 +2,9 @@
 
  import com.fasterxml.jackson.annotation.JsonIgnore;
  import jakarta.persistence.*;
- import jakarta.validation.constraints.NotEmpty;
 
+ import javax.validation.constraints.NotEmpty;
+ import javax.validation.constraints.Size;
  import java.time.LocalDateTime;
  import java.util.ArrayList;
  import java.util.List;
@@ -24,7 +25,9 @@ public class Todo {
     @JoinColumn(name="user_id")
     public User user;
 
-    @NotEmpty(message = "Description required")
+    @Size(min = 1, max = 300, message
+            = "The description should be between 1 and 300 characters")
+    @NotEmpty
     public String description;
     @Column(name = "is_complete")
     boolean isComplete;
@@ -50,6 +53,12 @@ public class Todo {
         this.isComplete = isComplete;
         this.dueDate = dueDate;
         this.user = user;
+    }
+
+    public Todo(String description, boolean isComplete, LocalDateTime dueDate) {
+        this.description = description;
+        this.isComplete = isComplete;
+        this.dueDate = dueDate;
     }
 
     public String getDescription() {

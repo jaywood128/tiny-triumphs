@@ -1,6 +1,7 @@
 package com.tiny.triumph.controller;
 
 
+import com.tiny.triumph.exceptions.ConstraintsViolationsException;
 import com.tiny.triumph.exceptions.ResourceNotFoundException;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
@@ -13,8 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -28,13 +34,28 @@ public class TodoListController {
         this.todoService = todoService;
     }
 
-    @PostMapping(value = "/todos/{userId}",  produces = "application/json")
+    // Assuming that you have a method that throws a ConstraintViolationExceptio
+
+    @PostMapping(value = "/todo/{userId}",  produces = "application/json")
     public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest){
+
+        // Todo refactor Todo validation layer by putting logic in TodoService https://www.baeldung.com/spring-service-layer-validation
         Optional<User> user = userService.findById(Integer.valueOf(userId));
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
         Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), user.get());
+
+        Set<ConstraintViolation<Todo>> violations = validator.validate(todo);
+
+        if(violations.size() > 0){
+            throw new ConstraintsViolationsException(violations);
+        }
+
         todoService.addTodo(Integer.valueOf(userId), todo);
         return new ResponseEntity<>(todo, HttpStatus.CREATED);
     }
+    @ExceptionHandler(value = { ResourceNotFoundException.class })
     @GetMapping (value = "/todo/{id}",  produces = "application/json")
     public ResponseEntity<Todo> getTodo(@PathVariable String id){
         // Ensure user passes valid token, and the token has read permission
@@ -51,8 +72,6 @@ public class TodoListController {
         Optional<User> foundUser = userService.findById(Integer.valueOf(userId));
         return new ResponseEntity<>(foundUser.get().todos, HttpStatus.ACCEPTED);
     }
-
-    // update a todo
 
     @PutMapping (value = "/todo",  produces = "application/json")
     public ResponseEntity<Todo> updateTodo(@RequestBody TodoRequestBody todoRequest){

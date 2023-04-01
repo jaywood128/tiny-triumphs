@@ -1,16 +1,13 @@
 package com.tiny.triumph.payload;
 
-
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
 public class CreateTodoRequestBody {
 
     @NotEmpty(message = "Description required")
     public String description;
-    @NotNull(message = "isComplete required")
+    @NotEmpty(message = "isComplete required")
     public boolean isComplete;
 
     public LocalDateTime dueDate;
