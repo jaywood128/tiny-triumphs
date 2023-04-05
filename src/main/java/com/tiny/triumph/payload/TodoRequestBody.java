@@ -1,5 +1,7 @@
 package com.tiny.triumph.payload;
 
+import com.tiny.triumph.enums.Priority;
+
 import java.time.LocalDateTime;
 
 public class TodoRequestBody {
@@ -17,6 +19,20 @@ public class TodoRequestBody {
     public String description;
 
     public boolean isComplete;
+
+    public Priority priority;
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
 
     public String getDescription() {
         return description;

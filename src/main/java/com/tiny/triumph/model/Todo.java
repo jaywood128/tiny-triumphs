@@ -1,6 +1,7 @@
  package com.tiny.triumph.model;
 
  import com.fasterxml.jackson.annotation.JsonIgnore;
+ import com.tiny.triumph.enums.Priority;
  import jakarta.persistence.*;
 
  import javax.validation.constraints.NotEmpty;
@@ -29,6 +30,7 @@ public class Todo {
             = "The description should be between 1 and 300 characters")
     @NotEmpty
     public String description;
+
     @Column(name = "is_complete")
     boolean isComplete;
     /**
@@ -38,20 +40,25 @@ public class Todo {
     @Column(name = "due_date")
     public LocalDateTime dueDate;
 
+//    @NotEmpty
+    public Priority priority;
+
     public Todo() {
     }
 
-    public Todo(String description, boolean isComplete, LocalDateTime dueDate, User user) {
+    public Todo(String description, boolean isComplete, LocalDateTime dueDate, Priority priority, User user) {
         this.description = description;
         this.isComplete = isComplete;
         this.dueDate = dueDate;
+        this.priority = priority;
         this.user = user;
     }
-    public Todo(int id, String description, boolean isComplete, LocalDateTime dueDate, User user) {
+    public Todo(int id, String description, boolean isComplete, LocalDateTime dueDate, Priority priority,  User user) {
         this.id = id;
         this.description = description;
         this.isComplete = isComplete;
         this.dueDate = dueDate;
+        this.priority = priority;
         this.user = user;
     }
 
@@ -135,5 +142,13 @@ public class Todo {
     @Override
     public int hashCode() {
         return Objects.hash(id, description, isComplete, dueDate);
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
     }
 }

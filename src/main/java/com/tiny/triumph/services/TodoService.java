@@ -44,7 +44,7 @@ public class TodoService {
         if (!user.isPresent()) {
             throw new EntityNotFoundException("User not found with id: " + userId);
         }
-        Todo todo = new Todo(copy.getDescription(), copy.isComplete(), copy.getDueDate(), user.get());
+        Todo todo = new Todo(copy.getDescription(), copy.isComplete(), copy.getDueDate(), copy.getPriority(), user.get());
         todoRepository.save(todo);
         todo.addTodo(todo,user.get());
         userRepository.save(user.get());

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user")
+@Table(name = "todo_user")
 public class User {
 
     @Id
@@ -30,6 +30,13 @@ public class User {
     public List<Todo> todos = new ArrayList<>();
 
     public User(int id, String firstName, String lastName, String email) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.todos = new ArrayList<>();
+    }
+
+    public User(String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -57,11 +64,6 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, email);
-    }
-
-    public Todo withIsCompleted(boolean isComplete, int todoId) {
-        Todo todo = (Todo) this.todos.stream().filter(todoArg -> todoArg.getId() == todoId);
-        return new Todo(todo.getDescription(), isComplete, todo.getDueDate(), this);
     }
 
     public String getFirstName() {

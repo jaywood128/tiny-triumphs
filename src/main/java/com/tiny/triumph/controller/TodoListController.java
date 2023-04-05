@@ -44,7 +44,7 @@ public class TodoListController {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), user.get());
+        Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), todoRequest.getPriority(), user.get());
 
         Set<ConstraintViolation<Todo>> violations = validator.validate(todo);
 
@@ -83,6 +83,7 @@ public class TodoListController {
                 !todoRequest.getDescription().isEmpty() ? todoRequest.getDescription() : existingTodo.get().getDescription(),
                 todoRequest.getIsComplete() != existingTodo.get().isComplete() ? todoRequest.getIsComplete() : existingTodo.get().isComplete(),
                 todoRequest.getDueDate() != null ? todoRequest.getDueDate() : existingTodo.get().getDueDate(),
+                todoRequest.getPriority() != null ? todoRequest.getPriority() : existingTodo.get().getPriority(),
                 existingTodo.get().getUser()
         );
 
