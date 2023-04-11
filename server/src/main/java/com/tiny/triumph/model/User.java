@@ -26,6 +26,9 @@ public class User {
     @Column(unique=true)
     public String email;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     public List<Todo> todos = new ArrayList<>();
 
@@ -58,12 +61,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && firstName.equals(user.firstName) && lastName.equals(user.lastName) && Objects.equals(email, user.email);
+        return id == user.id && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(todos, user.todos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, email);
+        return Objects.hash(id, firstName, lastName, email, password, todos);
     }
 
     public String getFirstName() {
@@ -92,5 +95,11 @@ public class User {
 
     public int getId() {
         return id;
+    }
+
+    public String getPassword(){return this.password;}
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

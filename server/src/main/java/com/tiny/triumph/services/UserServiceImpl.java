@@ -1,8 +1,8 @@
 package com.tiny.triumph.services;
 
 import com.tiny.triumph.model.User;
-import com.tiny.triumph.repositories.TodoRepository;
 import com.tiny.triumph.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService implements IUser {
+@Transactional
+public class UserServiceImpl implements IUser {
     UserRepository userRepository;
-    TodoRepository todoRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, TodoRepository todoRepository){
+    public UserServiceImpl(UserRepository userRepository){
         this.userRepository = userRepository;
-        this.todoRepository = todoRepository;
     }
     @Override
     public List<User> getAllUsers() {
@@ -36,7 +35,7 @@ public class UserService implements IUser {
 
     @Override
     public User save(User std) {
-       return userRepository.save(std);
+        return userRepository.save(std);
     }
 
     @Override

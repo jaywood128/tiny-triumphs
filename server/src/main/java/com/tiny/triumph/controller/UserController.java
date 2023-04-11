@@ -2,7 +2,7 @@ package com.tiny.triumph.controller;
 
 import com.tiny.triumph.exceptions.UserNotFoundException;
 import com.tiny.triumph.model.User;
-import com.tiny.triumph.services.UserService;
+import com.tiny.triumph.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,44 +12,43 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api")
 public class UserController {
-    UserService userService;
+
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    UserServiceImpl userServiceImpl;
+
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
+
     @GetMapping(value="/users")
     public ResponseEntity<List <User>> getAllUsers(){
         System.out.println("Hello");
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(userServiceImpl.getAllUsers(), HttpStatus.ACCEPTED);
     }
     @GetMapping(value="/users/{id}")
     public User getUserById(@PathVariable("id") int id) {
-        User usr = userService.findById(id)
+        User usr = userServiceImpl.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User with "+id+" is Not Found!"));
         return usr;
     }
-    // Todo add field validation
-    @PostMapping(value="/users")
-    public User addUser(@Valid @RequestBody User usr) {
-        return userService.save(usr);
-    }
+
     @PutMapping(value="/users/{id}")
     public User updateUser(@PathVariable("id") int id, @Valid @RequestBody User newUser) {
-        User usr = userService.findById(id)
+        User usr = userServiceImpl.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User with "+id+" is Not Found!"));
         usr.setFirstName(newUser.getFirstName());
         usr.setLastName(newUser.getLastName());
         usr.setEmail(newUser.getEmail());
-        return userService.save(usr);
+        return userServiceImpl.save(usr);
     }
     @DeleteMapping(value="/users/{id}")
-    public String deleteUser(@PathVariable("id") int id) {
-        User usr = userService.findById(id)
+    public HttpStatus deleteUser(@PathVariable("id") int id) {
+        User usr = userServiceImpl.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User with "+id+" is Not Found!"));
-        userService.deleteById(usr.getId());
-        return "User with ID :"+id+" is deleted";
+        userServiceImpl.deleteById(usr.getId());
+        return HttpStatus.NO_CONTENT;
     }
 }

@@ -8,7 +8,7 @@ import com.tiny.triumph.model.User;
 import com.tiny.triumph.payload.CreateTodoRequestBody;
 import com.tiny.triumph.payload.TodoRequestBody;
 import com.tiny.triumph.services.TodoService;
-import com.tiny.triumph.services.UserService;
+import com.tiny.triumph.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +23,14 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api")
 public class TodoListController {
-    UserService userService;
+    UserServiceImpl userServiceImpl;
     TodoService todoService;
     @Autowired
-    TodoListController(TodoService todoService, UserService userService){
-        this.userService = userService;
+    TodoListController(TodoService todoService, UserServiceImpl userServiceImpl){
+        this.userServiceImpl = userServiceImpl;
         this.todoService = todoService;
     }
 
@@ -40,7 +40,7 @@ public class TodoListController {
     public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest){
 
         // Todo refactor Todo validation layer by putting logic in TodoService https://www.baeldung.com/spring-service-layer-validation
-        Optional<User> user = userService.findById(Integer.valueOf(userId));
+        Optional<User> user = userServiceImpl.findById(Integer.valueOf(userId));
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -69,7 +69,7 @@ public class TodoListController {
     @GetMapping (value = "/todos/{userId}",  produces = "application/json")
     public ResponseEntity<List<Todo>> getTodos(@PathVariable String userId){
         // Ensure user passes valid token, and the token has read permission
-        Optional<User> foundUser = userService.findById(Integer.valueOf(userId));
+        Optional<User> foundUser = userServiceImpl.findById(Integer.valueOf(userId));
         return new ResponseEntity<>(foundUser.get().todos, HttpStatus.ACCEPTED);
     }
 
