@@ -21,7 +21,5 @@ Includes unit and integration tests using Mockito and MockMVC.
 Features:
 
 - CRUD functionality for Todos
-- Update a todo
-- Set an email reminder for the todo
-- Receive a positive encouragement when to complete the first todo in a project
-- Get an email update of the average todos completes, how long they took to complete
+- Set an email reminder for the todo.
+- Receive an email up to 7 days before an item is due.
