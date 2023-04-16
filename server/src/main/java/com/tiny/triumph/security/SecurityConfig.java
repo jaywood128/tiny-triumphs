@@ -27,9 +27,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsService userDetailsServiceImpl;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.formLogin(form -> {
@@ -49,8 +46,9 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/logout").permitAll()
                                                 .requestMatchers("/api/users").permitAll()
                                                 .requestMatchers("/api/users/*").permitAll()
-                                                .requestMatchers("/api/todos").permitAll()
-                                                .requestMatchers("/?continue").permitAll();
+                                                .requestMatchers("/api/todos/*").permitAll()
+                                                    .requestMatchers("/api/todo/*").permitAll()
+                                                .requestMatchers("/error*").permitAll();
                                         } catch (Exception e) {
                                             throw new RuntimeException(e);
                                         }

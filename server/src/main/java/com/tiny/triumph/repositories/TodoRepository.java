@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface TodoRepository extends JpaRepository<Todo, Integer> {
 
     // Query User by email
-    Optional<Todo> findToDoByDescription(String email);
+    Optional<Todo> findToDoByDescription(String description);
 }
 

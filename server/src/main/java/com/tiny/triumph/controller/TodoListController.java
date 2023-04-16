@@ -1,8 +1,9 @@
 package com.tiny.triumph.controller;
 
 
-import com.tiny.triumph.exceptions.ConstraintsViolationsException;
+import com.tiny.triumph.exceptions.TodoConstraintsViolationsException;
 import com.tiny.triumph.exceptions.ResourceNotFoundException;
+import com.tiny.triumph.exceptions.UserNotFoundException;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
 import com.tiny.triumph.payload.CreateTodoRequestBody;
@@ -34,24 +35,24 @@ public class TodoListController {
         this.todoService = todoService;
     }
 
-    // Assuming that you have a method that throws a ConstraintViolationExceptio
-
     @PostMapping(value = "/todo/{userId}",  produces = "application/json")
     public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest){
 
         // Todo refactor Todo validation layer by putting logic in TodoService https://www.baeldung.com/spring-service-layer-validation
-        Optional<User> user = userServiceImpl.findById(Integer.valueOf(userId));
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
+        Optional<User> user = userServiceImpl.findById(Integer.parseInt(userId));
+        if(!user.isPresent()){
+            throw new UserNotFoundException("No user with Id " + userId + " does not exist");
+        }
         Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), todoRequest.getPriority(), user.get());
 
-        Set<ConstraintViolation<Todo>> violations = validator.validate(todo);
+        try(ValidatorFactory factory = Validation.buildDefaultValidatorFactory()){
+            Validator validator = factory.getValidator();
+            Set<ConstraintViolation<Todo>> violations = validator.validate(todo);
 
-        if(violations.size() > 0){
-            throw new ConstraintsViolationsException(violations);
+            if(violations.size() > 0){
+                throw new TodoConstraintsViolationsException(violations);
+            }
         }
-
         todoService.addTodo(Integer.valueOf(userId), todo);
         return new ResponseEntity<>(todo, HttpStatus.CREATED);
     }
@@ -59,17 +60,22 @@ public class TodoListController {
     @GetMapping (value = "/todo/{id}",  produces = "application/json")
     public ResponseEntity<Todo> getTodo(@PathVariable String id){
         // Ensure user passes valid token, and the token has read permission
-        Optional<Todo> todo = todoService.findById(Integer.valueOf(id));
+        Optional<Todo> todo = todoService.findById(Integer.parseInt(id));
         if(todo.isEmpty()){
             throw new ResourceNotFoundException("A todo with " + id + " was not found");
         }
-        return new ResponseEntity<>(todo.get(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(todo.get(), HttpStatus.OK);
     }
-    // get all of a user's todos
+    // get a user's todos
+    @ExceptionHandler(value = { UserNotFoundException.class })
     @GetMapping (value = "/todos/{userId}",  produces = "application/json")
     public ResponseEntity<List<Todo>> getTodos(@PathVariable String userId){
         // Ensure user passes valid token, and the token has read permission
+
         Optional<User> foundUser = userServiceImpl.findById(Integer.valueOf(userId));
+        if(foundUser.isEmpty()){
+            throw new UserNotFoundException("A user with the Id of " + userId + " was not found");
+        }
         return new ResponseEntity<>(foundUser.get().todos, HttpStatus.ACCEPTED);
     }
 
@@ -77,6 +83,10 @@ public class TodoListController {
     public ResponseEntity<Todo> updateTodo(@RequestBody TodoRequestBody todoRequest){
         // Todo Ensure user passes valid token, and the token the correct permissions
         Optional<Todo> existingTodo = todoService.findById(todoRequest.getId());
+
+        if(existingTodo.isEmpty()){
+            throw new ResourceNotFoundException("There is no todo with id " + todoRequest.id);
+        }
 
         Todo updatedTodo = new Todo(
                 existingTodo.get().getId(),

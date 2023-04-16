@@ -10,35 +10,35 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
-public class UserServiceImpl implements IUser {
+public class UserServiceImpl {
     UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository){
         this.userRepository = userRepository;
     }
-    @Override
+
+    @Transactional
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    @Override
+    @Transactional
     public Optional<User> findById(int id) {
         return userRepository.findById(id);
     }
 
-    @Override
+    @Transactional
+
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
-    @Override
-    public User save(User std) {
-        return userRepository.save(std);
+    @Transactional
+    public User save(User user) {
+        User savedUser = userRepository.save(user);
+        return savedUser;
     }
-
-    @Override
+    @Transactional
     public void deleteById(int id) {
         userRepository.deleteById(id);
     }

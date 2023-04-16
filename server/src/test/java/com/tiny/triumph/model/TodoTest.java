@@ -1,11 +1,13 @@
 package com.tiny.triumph.model;
 
+import com.tiny.triumph.config.TestConfig;
 import com.tiny.triumph.repositories.TodoRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.ConstraintViolation;
@@ -19,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@Import(TestConfig.class)
 public class TodoTest {
     public TodoTest() {
     }
@@ -30,15 +33,13 @@ public class TodoTest {
     private TodoRepository todoRepository;
 
     @Test
-    public void test_validateTodoDescriptionLength(){
-
+    public void test_validateTodoDescriptionLength() {
         Todo todo = new Todo("", false, LocalDateTime.now());
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = factory.getValidator();
+            Set<ConstraintViolation<Todo>> violations = validator.validate(todo);
 
-        Set<ConstraintViolation<Todo>> violations = validator.validate(todo);
-
-        assertThat(violations.size() == 2);
-
+            assertThat(violations.size() == 2).isEqualTo(true);
+        }
     }
 }

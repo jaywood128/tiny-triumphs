@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "todo_user")
+@Table(name = "user_")
 public class User {
 
     @Id
@@ -22,10 +23,11 @@ public class User {
     @NotEmpty(message = "Last name is required")
     @Column(name = "last_name")
     public String lastName;
+
     @Email(message = "Email should be valid")
     @Column(unique=true)
     public String email;
-
+    @Size(min = 6, max = 15)
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -36,13 +38,15 @@ public class User {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
         this.todos = new ArrayList<>();
     }
 
-    public User(String firstName, String lastName, String email) {
-        this.id = id;
+    public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
+        this.password = password;
         this.todos = new ArrayList<>();
     }
     public User() {

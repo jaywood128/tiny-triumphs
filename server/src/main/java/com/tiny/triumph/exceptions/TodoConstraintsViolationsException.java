@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.validation.ConstraintViolation;
 import java.util.Set;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class ConstraintsViolationsException extends RuntimeException {
+public class TodoConstraintsViolationsException extends RuntimeException {
 
-    public  Set<ConstraintViolation<Todo>> violations;
+    public Set<ConstraintViolation<Todo>> violations;
 
-    public  ConstraintsViolationsException(Set<ConstraintViolation<Todo>> violations){
+    public TodoConstraintsViolationsException(Set<ConstraintViolation<Todo>> violations){
         this.violations = violations;
     }
 
