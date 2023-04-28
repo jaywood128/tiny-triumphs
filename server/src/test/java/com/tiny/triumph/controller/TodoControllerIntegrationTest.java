@@ -2,9 +2,9 @@ package com.tiny.triumph.controller;
 
 import com.tiny.triumph.TodoApplication;
 import com.tiny.triumph.enums.Priority;
+import com.tiny.triumph.enums.Role;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
-import com.tiny.triumph.repositories.TodoRepository;
 import com.tiny.triumph.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class TodoControllerIntegrationTest {
     @InjectMocks
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private static final LocalDateTime localDateTime = LocalDateTime.now();
+    public LocalDateTime localDateTime = LocalDateTime.now();
 
 
     @BeforeEach
@@ -73,7 +73,7 @@ public class TodoControllerIntegrationTest {
         MockitoAnnotations.openMocks(this); // Initialize Mockito
 
         // User
-        User user = new User("Rebecca", "Welton", "rwelton@richmond.io", bCryptPasswordEncoder.encode("believe"));
+        User user = new User("Rebecca", "Welton", "rwelton@richmond.io", bCryptPasswordEncoder.encode("believe"), Role.USER);
         testEntityManager.persist(user);
         testEntityManager.flush();
 
@@ -89,7 +89,7 @@ public class TodoControllerIntegrationTest {
         Optional<User> user = userRepository.findByEmail("rwelton@richmond.io");
         assertThat(user.isPresent()).isEqualTo(true);
 
-        mockMvc.perform(get("/api/todo/{userId}", user.get().id)
+        mockMvc.perform(get("/api/todo/{userId}", user.get().getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()

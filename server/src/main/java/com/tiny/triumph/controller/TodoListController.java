@@ -36,11 +36,11 @@ public class TodoListController {
     }
 
     @PostMapping(value = "/todo/{userId}",  produces = "application/json")
-    public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest){
+    public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest) throws UserNotFoundException {
 
         // Todo refactor Todo validation layer by putting logic in TodoService https://www.baeldung.com/spring-service-layer-validation
         Optional<User> user = userServiceImpl.findById(Integer.parseInt(userId));
-        if(!user.isPresent()){
+        if(user.isEmpty()){
             throw new UserNotFoundException("No user with Id " + userId + " does not exist");
         }
         Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), todoRequest.getPriority(), user.get());
@@ -58,7 +58,7 @@ public class TodoListController {
     }
     @ExceptionHandler(value = { ResourceNotFoundException.class })
     @GetMapping (value = "/todo/{id}",  produces = "application/json")
-    public ResponseEntity<Todo> getTodo(@PathVariable String id){
+    public ResponseEntity<Todo> getTodo(@PathVariable String id) throws ResourceNotFoundException {
         // Ensure user passes valid token, and the token has read permission
         Optional<Todo> todo = todoService.findById(Integer.parseInt(id));
         if(todo.isEmpty()){
@@ -69,18 +69,18 @@ public class TodoListController {
     // get a user's todos
     @ExceptionHandler(value = { UserNotFoundException.class })
     @GetMapping (value = "/todos/{userId}",  produces = "application/json")
-    public ResponseEntity<List<Todo>> getTodos(@PathVariable String userId){
+    public ResponseEntity<List<Todo>> getTodos(@PathVariable String userId) throws UserNotFoundException {
         // Ensure user passes valid token, and the token has read permission
 
         Optional<User> foundUser = userServiceImpl.findById(Integer.valueOf(userId));
         if(foundUser.isEmpty()){
             throw new UserNotFoundException("A user with the Id of " + userId + " was not found");
         }
-        return new ResponseEntity<>(foundUser.get().todos, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(foundUser.get().getTodos(), HttpStatus.ACCEPTED);
     }
 
     @PutMapping (value = "/todo",  produces = "application/json")
-    public ResponseEntity<Todo> updateTodo(@RequestBody TodoRequestBody todoRequest){
+    public ResponseEntity<Todo> updateTodo(@RequestBody TodoRequestBody todoRequest) throws ResourceNotFoundException {
         // Todo Ensure user passes valid token, and the token the correct permissions
         Optional<Todo> existingTodo = todoService.findById(todoRequest.getId());
 
@@ -96,7 +96,6 @@ public class TodoListController {
                 todoRequest.getPriority() != null ? todoRequest.getPriority() : existingTodo.get().getPriority(),
                 existingTodo.get().getUser()
         );
-
         todoService.updateTodo(updatedTodo, existingTodo.get().getUser());
         return ResponseEntity.ok(updatedTodo);
     }

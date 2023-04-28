@@ -2,6 +2,7 @@ package com.tiny.triumph.repository;
 
 import com.tiny.triumph.config.TestConfig;
 import com.tiny.triumph.enums.Priority;
+import com.tiny.triumph.enums.Role;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
 import com.tiny.triumph.repositories.TodoRepository;
@@ -54,7 +55,7 @@ public class TodoRepositoryTest {
         // Example using Mockito:
         String encodedPassword = bCryptPasswordEncoder.encode("believe");
         // User
-        User user = new User("Ted", "Lasso", "tlasso@richmond.io", bCryptPasswordEncoder.encode(encodedPassword));
+        User user = new User("Ted", "Lasso", "tlasso@richmond.io", bCryptPasswordEncoder.encode(encodedPassword), Role.USER);
         testEntityManager.persist(user);
         testEntityManager.flush();
         Todo todo = new Todo("Bake chocolate chip cookies", false, LocalDateTime.now(), Priority.HIGH, user);

@@ -2,6 +2,7 @@
 
  import com.fasterxml.jackson.annotation.JsonIgnore;
  import com.tiny.triumph.enums.Priority;
+ import com.tiny.triumph.enums.Role;
  import jakarta.persistence.*;
 
  import javax.validation.constraints.NotEmpty;
@@ -32,15 +33,13 @@ public class Todo {
     public String description;
 
     @Column(name = "is_complete")
-    boolean isComplete;
+    public boolean isComplete;
     /**
      * example usage dueDate = LocalDateTime.of(2023, 4, 15, 8, 30);
      */
     //@CreatedDate
     @Column(name = "due_date")
     public LocalDateTime dueDate;
-
-//    @NotEmpty
     public Priority priority;
 
     public Todo() {
@@ -96,30 +95,23 @@ public class Todo {
         this.user = user;
     }
 
-    public void addTodo(Todo todo, User user){
-        user.todos.add(todo);
-       for(Todo todo1 : user.todos){
-           System.out.println(todo1.getId() + " " + todo1.getDescription() + " " + todo1.getDueDate());
-       }
-    }
-
     public User updateTodo(int todoId, User user, Todo newTodo){
         // Find todo we want to update
-        Todo updateMe = user.todos.stream()
+        Todo updateMe = user.getTodos().stream()
                 .filter(t -> t.getId() == todoId)
                 .findFirst()
                 .orElseThrow();
 
         List<Todo> updatedTodos = new ArrayList<>();
-        User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), updatedTodos);
+        User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), updatedTodos, Role.USER);
         // copy existing todos
-        List<Todo> existingTodos =  user.todos.stream().filter(t -> t.getId() != todoId)
+        List<Todo> existingTodos =  user.getTodos().stream().filter(t -> t.getId() != todoId)
                 .collect(Collectors.toList());
         for(Todo todo1 : existingTodos){
-            newUser.todos.add(todo1);
+            newUser.getTodos().add(todo1);
         }
         updatedTodos.add(newTodo);
-        newUser.todos.addAll(updatedTodos);
+        newUser.getTodos().addAll(updatedTodos);
         return newUser;
     }
 

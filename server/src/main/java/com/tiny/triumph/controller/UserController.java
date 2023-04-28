@@ -29,14 +29,14 @@ public class UserController {
         return new ResponseEntity<>(userServiceImpl.getAllUsers(), HttpStatus.ACCEPTED);
     }
     @GetMapping(value="/users/{id}")
-    public User getUserById(@PathVariable("id") int id) {
+    public User getUserById(@PathVariable("id") int id) throws UserNotFoundException {
         User usr = userServiceImpl.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User with "+id+" is Not Found!"));
         return usr;
     }
 
     @PutMapping(value="/users/{id}")
-    public User updateUser(@PathVariable("id") int id, @Valid @RequestBody User newUser) {
+    public User updateUser(@PathVariable("id") int id, @Valid @RequestBody User newUser) throws UserNotFoundException {
         User usr = userServiceImpl.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User with "+id+" is Not Found!"));
         usr.setFirstName(newUser.getFirstName());
@@ -45,7 +45,7 @@ public class UserController {
         return userServiceImpl.save(usr);
     }
     @DeleteMapping(value="/users/{id}")
-    public HttpStatus deleteUser(@PathVariable("id") int id) {
+    public HttpStatus deleteUser(@PathVariable("id") int id) throws UserNotFoundException {
         User usr = userServiceImpl.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User with "+id+" is Not Found!"));
         userServiceImpl.deleteById(usr.getId());

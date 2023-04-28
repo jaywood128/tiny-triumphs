@@ -3,6 +3,7 @@ package com.tiny.triumph.controller;
 
 import com.tiny.triumph.dto.RegistrationRequestDTO;
 import com.tiny.triumph.dto.RegistrationResponseDTO;
+import com.tiny.triumph.enums.Role;
 import com.tiny.triumph.exceptions.UserConstraintsViolationsException;
 import com.tiny.triumph.model.User;
 import com.tiny.triumph.services.UserServiceImpl;
@@ -29,8 +30,8 @@ public class RegistrationController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = { UserConstraintsViolationsException.class } )
     @PostMapping(value="/register")
-    public ResponseEntity<RegistrationResponseDTO> registerUser(@RequestBody RegistrationRequestDTO registrationRequestDTO) throws DataIntegrityViolationException{
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory();){
+    public ResponseEntity<RegistrationResponseDTO> registerUser(@RequestBody RegistrationRequestDTO registrationRequestDTO) throws DataIntegrityViolationException, UserConstraintsViolationsException {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()){
             Validator validator = factory.getValidator();
 
             Set<ConstraintViolation<RegistrationRequestDTO>> violations = validator.validate(registrationRequestDTO);
@@ -43,7 +44,8 @@ public class RegistrationController extends ResponseEntityExceptionHandler {
                 registrationRequestDTO.getFirstName().isBlank() ? "" : registrationRequestDTO.getFirstName(),
                 registrationRequestDTO.getLastName().isBlank() ? "" : registrationRequestDTO.getLastName(),
                 registrationRequestDTO.getEmail().isBlank() ? "" : registrationRequestDTO.getEmail(),
-                registrationRequestDTO.getPassword().isBlank() ? "" : bCryptPasswordEncoder.encode(registrationRequestDTO.getPassword())
+                registrationRequestDTO.getPassword().isBlank() ? "" : bCryptPasswordEncoder.encode(registrationRequestDTO.getPassword()),
+                Role.USER
         );
 
         userServiceImpl.save(user);
