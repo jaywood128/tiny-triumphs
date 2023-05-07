@@ -1,79 +1,68 @@
 package com.tiny.triumph.security.config;
 
 
+import com.tiny.triumph.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.formLogin(form -> {
-                    try {
-                        form
-                                .loginPage("/api/login")
-                                    .permitAll()
-                                .and()
-                                    .logout()
-                                    .logoutSuccessUrl("/")
-                                    .permitAll()
-                                .and()
-                                .   authorizeHttpRequests((authz) -> {
-                                        try {
-                                            authz
-                                                .requestMatchers("/api/register").permitAll()
-                                                .requestMatchers("/api/logout").permitAll()
-                                                .requestMatchers("/api/users").permitAll()
-                                                .requestMatchers("/api/users/*").permitAll()
-                                                .requestMatchers("/api/todos/*").permitAll()
-                                                    .requestMatchers("/api/todo/*").permitAll()
-                                                .requestMatchers("/error*").permitAll();
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                )
-                                .httpBasic(withDefaults());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        http.cors().and().csrf().disable();
-        return http.build();
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationProvider authenticationProvider;
+    private final UserRepository userRepository;
+    private final LogoutHandler logoutHandler;
+    @Autowired
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationProvider authenticationProvider, UserRepository userRepository, LogoutHandler logoutHandler){
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationProvider = authenticationProvider;
+        this.userRepository = userRepository;
+        this.logoutHandler = logoutHandler;
     }
 
     @Bean
-    @Primary
-    public PasswordEncoder delegatingPasswordEncoder() {
-        PasswordEncoder defaultEncoder = new StandardPasswordEncoder();
-        Map<String, PasswordEncoder> encoders = new HashMap<>();
-        encoders.put("bcrypt", new BCryptPasswordEncoder());
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(
-                "bcrypt", encoders);
-        passwordEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
+            http
+                    .csrf()
+                    .disable()
+                    .authorizeHttpRequests()
+                    .requestMatchers(
+                            "/api/v1/auth/**",
+                            "/api/v1/users"
+                    )
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+                    .and()
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                    .authenticationProvider(authenticationProvider)
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .logout()
+                    .logoutUrl("/api/v1/auth/logout")
+                    .logoutSuccessUrl("http://localhost:3000/")
+                    .addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
+            return http.build();
 
-        return passwordEncoder;
     }
 
     CorsConfigurationSource corsConfigurationSource() {

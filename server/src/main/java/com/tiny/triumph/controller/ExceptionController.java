@@ -1,8 +1,7 @@
 package com.tiny.triumph.controller;
 
-import com.tiny.triumph.dto.RegistrationRequestDTO;
-import com.tiny.triumph.exceptions.TodoConstraintsViolationsException;
 import com.tiny.triumph.exceptions.ResourceNotFoundException;
+import com.tiny.triumph.exceptions.TodoConstraintsViolationsException;
 import com.tiny.triumph.exceptions.UserConstraintsViolationsException;
 import com.tiny.triumph.exceptions.UserNotFoundException;
 import com.tiny.triumph.model.Todo;
@@ -46,9 +45,9 @@ public class ExceptionController {
 
     @ExceptionHandler(UserConstraintsViolationsException.class)
     public ResponseEntity<Object> handleUserConstraintsViolationsException(UserConstraintsViolationsException ex) {
-        Set<ConstraintViolation<RegistrationRequestDTO>> violations = ex.getViolations();
+        Set<ConstraintViolation<com.tiny.triumph.model.User>> violations = ex.getViolations();
         List<String> errorMessages = new ArrayList<>();
-        for (ConstraintViolation<RegistrationRequestDTO> violation : violations) {
+        for (ConstraintViolation<com.tiny.triumph.model.User> violation : violations) {
             errorMessages.add(violation.getPropertyPath() + " " + violation.getMessage());
         }
         // Create a custom error response object

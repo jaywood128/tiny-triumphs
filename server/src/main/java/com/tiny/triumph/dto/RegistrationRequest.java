@@ -5,7 +5,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class RegistrationRequestDTO {
+public class RegistrationRequest {
 
     @NotEmpty
     private String firstName;

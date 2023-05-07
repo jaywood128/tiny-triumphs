@@ -25,7 +25,7 @@ import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class TodoListController {
     UserServiceImpl userServiceImpl;
     TodoService todoService;
@@ -53,7 +53,7 @@ public class TodoListController {
                 throw new TodoConstraintsViolationsException(violations);
             }
         }
-        todoService.addTodo(Integer.valueOf(userId), todo);
+        todoService.addTodo(Integer.parseInt(userId), todo);
         return new ResponseEntity<>(todo, HttpStatus.CREATED);
     }
     @ExceptionHandler(value = { ResourceNotFoundException.class })
@@ -72,11 +72,11 @@ public class TodoListController {
     public ResponseEntity<List<Todo>> getTodos(@PathVariable String userId) throws UserNotFoundException {
         // Ensure user passes valid token, and the token has read permission
 
-        Optional<User> foundUser = userServiceImpl.findById(Integer.valueOf(userId));
+        Optional<User> foundUser = userServiceImpl.findById(Integer.parseInt(userId));
         if(foundUser.isEmpty()){
             throw new UserNotFoundException("A user with the Id of " + userId + " was not found");
         }
-        return new ResponseEntity<>(foundUser.get().getTodos(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(foundUser.get().getTodos(), HttpStatus.OK);
     }
 
     @PutMapping (value = "/todo",  produces = "application/json")

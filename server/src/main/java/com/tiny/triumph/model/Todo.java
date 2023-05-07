@@ -143,4 +143,8 @@ public class Todo {
     public void setPriority(Priority priority) {
         this.priority = priority;
     }
+
+    public boolean getIsComplete() {
+        return isComplete;
+    }
 }

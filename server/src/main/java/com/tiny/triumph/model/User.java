@@ -1,6 +1,7 @@
 package com.tiny.triumph.model;
 
 import com.tiny.triumph.enums.Role;
+import com.tiny.triumph.security.token.Token;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,11 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "user_")
@@ -33,7 +32,6 @@ public class User implements UserDetails {
     @Column(unique=true)
     private String email;
 
-    @Size(min = 6, max = 15)
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -42,6 +40,9 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Token> tokens;
 
     public User(int id, String firstName, String lastName, String email, Role role) {
         this.id = id;
@@ -120,7 +121,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override

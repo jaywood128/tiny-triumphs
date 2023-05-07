@@ -1,5 +1,6 @@
 package com.tiny.triumph.services;
 
+import com.tiny.triumph.exceptions.ResourceNotFoundException;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
 import com.tiny.triumph.repositories.TodoRepository;
@@ -22,6 +23,14 @@ public class TodoService {
     @Autowired
     private UserRepository userRepository;
 
+    public TodoService(TodoRepository todoRepository, UserRepository userRepository) {
+        this.todoRepository = todoRepository;
+        this.userRepository = userRepository;
+    }
+
+    public TodoService(){
+    }
+
     @Transactional
     public Optional<Todo> findById(int todoId){
         return todoRepository.findById(todoId);
@@ -40,16 +49,6 @@ public class TodoService {
         user.get().getTodos().add(todo);
         userRepository.save(user.get());
         return todo;
-    }
-
-    @Transactional
-    public void addTodos(int userId, List<Todo> addMe) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            throw new EntityNotFoundException("User not found with id: " + userId);
-        }
-        user.get().getTodos().addAll(addMe);
-        System.out.println("Todos added for user with id " + user.get().getId());
     }
     // This should optionally pass both the description and isCompleted
     @Transactional
@@ -70,6 +69,10 @@ public class TodoService {
             throw new EntityNotFoundException("Todo with " + existingTodo.get().getId()+ " not found");
         }
         todoRepository.delete(existingTodo.get());
+    }
+    @Transactional
+    public Optional<Todo> findToDoByDescription(String description) throws ResourceNotFoundException {
+       return Optional.ofNullable(todoRepository.findToDoByDescription(description).orElseThrow(() -> new ResourceNotFoundException("Todo not found")));
     }
 
 
