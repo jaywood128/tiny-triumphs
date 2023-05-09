@@ -3,6 +3,9 @@ package com.tiny.triumph.security.token;
 import com.tiny.triumph.enums.TokenType;
 import com.tiny.triumph.model.User;
 import jakarta.persistence.*;
+
+import javax.validation.constraints.NotEmpty;
+
 @Entity
 @Table(name = "token")
     public class Token {
@@ -12,6 +15,7 @@ import jakarta.persistence.*;
         public Integer id;
 
         @Column(unique = true)
+        @NotEmpty
         public String token;
 
         @Enumerated(EnumType.STRING)

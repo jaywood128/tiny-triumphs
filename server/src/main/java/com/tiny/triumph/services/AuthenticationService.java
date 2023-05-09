@@ -5,6 +5,7 @@ import com.tiny.triumph.dto.AuthenticationRequest;
 import com.tiny.triumph.dto.RegistrationRequest;
 import com.tiny.triumph.enums.Role;
 import com.tiny.triumph.enums.TokenType;
+import com.tiny.triumph.exceptions.ResourceNotFoundException;
 import com.tiny.triumph.exceptions.UserConstraintsViolationsException;
 import com.tiny.triumph.response.AuthenticationResponse;
 import com.tiny.triumph.security.token.Token;
@@ -49,13 +50,13 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegistrationRequest requestDTO){
 
 
-        String encodedPassword = bCryptPasswordEncoder.encode(requestDTO.getPassword());
+        String encodedPassword = bCryptPasswordEncoder.encode(requestDTO.password());
         System.out.println("Encoded password " + encodedPassword);
         com.tiny.triumph.model.User user = new com.tiny.triumph.model.User(
-                requestDTO.getFirstName().isBlank() ? "" : requestDTO.getFirstName(),
-                requestDTO.getLastName().isBlank() ? "" : requestDTO.getLastName(),
-                requestDTO.getEmail().isBlank() ? "" : requestDTO.getEmail(),
-                requestDTO.getPassword().isBlank() ? "" : encodedPassword,
+                requestDTO.firstName().isBlank() ? "" : requestDTO.firstName(),
+                requestDTO.lastName().isBlank() ? "" : requestDTO.lastName(),
+                requestDTO.email().isBlank() ? "" : requestDTO.email(),
+                requestDTO.password().isBlank() ? "" : encodedPassword,
                 Role.USER
         );
 
@@ -74,7 +75,7 @@ public class AuthenticationService {
 
         userServiceImpl.save(user);
 
-        var savedUser = userServiceImpl.findByEmail(requestDTO.getEmail())
+        var savedUser = userServiceImpl.findByEmail(requestDTO.email())
                 .orElseThrow();
 
         var jwtToken = jwtService.generateToken(user);
@@ -84,7 +85,7 @@ public class AuthenticationService {
         return new AuthenticationResponse(jwtToken, refreshToken);
     }
     @Transactional
-    public AuthenticationResponse authenticate(AuthenticationRequest request) throws AuthenticationException {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws AuthenticationException, ResourceNotFoundException {
         System.out.println("Auth email" + request.getEmail().trim());
         System.out.println("Auth password" + request.getPassword().trim());
         try{
@@ -99,7 +100,7 @@ public class AuthenticationService {
         }
 
         var user = userServiceImpl.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(()-> new ResourceNotFoundException("A user with the email " + request.getEmail() + " was not found"));
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);

@@ -42,4 +42,9 @@ public class UserServiceImpl {
     public void deleteById(int id) {
         userRepository.deleteById(id);
     }
+
+    @Transactional
+    public void deleteAllUsers(){
+        userRepository.deleteAll();
+    }
 }

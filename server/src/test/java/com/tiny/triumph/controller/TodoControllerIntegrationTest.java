@@ -20,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
@@ -56,7 +55,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureMockMvc
 @TestPropertySource(
         locations = "classpath:application-integration-test.properties")
-@AutoConfigureTestEntityManager
 @WithMockUser
 public class TodoControllerIntegrationTest {
 
@@ -103,7 +101,7 @@ public class TodoControllerIntegrationTest {
         Todo todo = new Todo("Bake chocolate chip cookies", false, localDateTime, Priority.HIGH, user);
         todoService.addTodo(user.getId(), todo);
 
-        classPathResource = new ClassPathResource("test-data/todo-controller-integration-get-todos.json");
+        classPathResource = new ClassPathResource("test-data/response-payload/todo-controller-integration-get-todos.json");
         expectedTodos = objectMapper.readValue(classPathResource.getFile(), Todo[].class);
 
     }
@@ -132,7 +130,7 @@ public class TodoControllerIntegrationTest {
     public void when_todos_are_found() throws Exception, ResourceNotFoundException {
         Optional<User> user = userServiceImpl.findByEmail("rwelton@richmond.io");
         assertThat(todoService.findToDoByDescription("Bake chocolate chip cookies").get().getUser().getFirstName().equals("Rebecca"));
-        String json = loadJsonFromFile("test-data/todo-controller-integration-get-todos.json");
+        String json = loadJsonFromFile("test-data/response-payload/todo-controller-integration-get-todos.json");
         System.out.println("Load todo JSON " + json);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/todos/{id}", user.get().getId()))
@@ -150,6 +148,12 @@ public class TodoControllerIntegrationTest {
         Arrays.equals(actualTodos, expectedTodos);
 
     }
+    @Test
+    /**
+     * successfully add todos and retrieve them from the database
+     * */
+
+
     private String loadJsonFromFile(String fileName) throws IOException {
         Resource resource = new ClassPathResource(fileName);
         InputStream inputStream = resource.getInputStream();
