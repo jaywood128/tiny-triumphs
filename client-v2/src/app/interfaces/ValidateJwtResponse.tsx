@@ -1,0 +1,3 @@
+interface ValidateJwtResponse {
+  responseBody: string
+}

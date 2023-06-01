@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { RegistrationData } from '@/app/interfaces/RegistrationData';
 
 export default async function register(registrationData: RegistrationData) {
   try {
-    const res = await fetch('http://localhost:8000/api/register', {
+    const res = await fetch('http://localhost:8000/api/v1/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

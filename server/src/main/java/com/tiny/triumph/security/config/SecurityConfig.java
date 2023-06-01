@@ -40,6 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
             http
+                    .cors((customizer) -> corsConfigurationSource())
                     .csrf()
                     .disable()
                     .authorizeHttpRequests()
@@ -74,6 +75,9 @@ public class SecurityConfig {
                 HttpMethod.POST.name(),
                 HttpMethod.DELETE.name()
         ));
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedHeader("Authorization");
+        configuration.addAllowedHeader("Content-Type");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration.applyPermitDefaultValues());

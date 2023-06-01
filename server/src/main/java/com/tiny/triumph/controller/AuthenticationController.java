@@ -54,5 +54,13 @@ public class AuthenticationController extends ResponseEntityExceptionHandler {
         authenticationService.refreshToken(request, response);
     }
 
+    @GetMapping("/validate")
+    public ResponseEntity<String> validate(){
+        System.out.println();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Jwt is valid");
+    }
+
 }
 

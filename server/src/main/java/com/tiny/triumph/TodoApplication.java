@@ -2,11 +2,11 @@ package com.tiny.triumph;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.SpringVersion;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.tiny.triumph"})
+@CrossOrigin(origins = "http://localhost:3000")
 public class TodoApplication {
 
 	public static void main(String[] args) {

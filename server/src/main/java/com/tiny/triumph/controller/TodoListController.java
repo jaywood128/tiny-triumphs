@@ -36,7 +36,7 @@ public class TodoListController {
         this.todoService = todoService;
     }
 
-    @PostMapping(value = "/todos",  produces = "application/json")
+    @PostMapping(value = "/todos/{userId}",  produces = "application/json")
     public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest, Principal principal) throws UserNotFoundException {
         String principalName = principal.getName();
         // Todo refactor Todo validation layer by putting logic in TodoService https://www.baeldung.com/spring-service-layer-validation
