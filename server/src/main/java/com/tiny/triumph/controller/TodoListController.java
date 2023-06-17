@@ -1,8 +1,8 @@
 package com.tiny.triumph.controller;
 
 
-import com.tiny.triumph.exceptions.TodoConstraintsViolationsException;
 import com.tiny.triumph.exceptions.ResourceNotFoundException;
+import com.tiny.triumph.exceptions.TodoConstraintsViolationsException;
 import com.tiny.triumph.exceptions.UserNotFoundException;
 import com.tiny.triumph.model.Todo;
 import com.tiny.triumph.model.User;
@@ -36,15 +36,18 @@ public class TodoListController {
         this.todoService = todoService;
     }
 
-    @PostMapping(value = "/todos/{userId}",  produces = "application/json")
-    public ResponseEntity<Todo> createTodo(@PathVariable String userId, @RequestBody CreateTodoRequestBody todoRequest, Principal principal) throws UserNotFoundException {
+    @PostMapping(value = "/todos",  produces = "application/json")
+    public ResponseEntity<Todo> createTodo(@RequestBody CreateTodoRequestBody todoRequest, Principal principal) throws UserNotFoundException {
         String principalName = principal.getName();
+
+       todoRequest.setDueDate();
+
         // Todo refactor Todo validation layer by putting logic in TodoService https://www.baeldung.com/spring-service-layer-validation
         Optional<User> user = userServiceImpl.findByEmail(principalName);
         if(user.isEmpty()){
-            throw new UserNotFoundException("No user with Id " + userId + " does not exist");
+            throw new UserNotFoundException("User not found");
         }
-        Todo todo = new Todo(todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), todoRequest.getPriority(), user.get());
+        Todo todo = new Todo(todoRequest.getName(), todoRequest.getDescription(), todoRequest.getIsComplete(), todoRequest.getDueDate(), todoRequest.getPriority(), user.get());
 
         try(ValidatorFactory factory = Validation.buildDefaultValidatorFactory()){
             Validator validator = factory.getValidator();
@@ -54,7 +57,7 @@ public class TodoListController {
                 throw new TodoConstraintsViolationsException(violations);
             }
         }
-        todoService.addTodo(Integer.parseInt(userId), todo);
+        todoService.addTodo(user.get().getId(), todo);
         return new ResponseEntity<>(todo, HttpStatus.CREATED);
     }
     // get a user's todos
@@ -62,7 +65,7 @@ public class TodoListController {
     @GetMapping (value = "/todos",  produces = "application/json")
     public ResponseEntity<List<Todo>> getTodos( Principal principal) throws UserNotFoundException {
         // Ensure user passes valid token, and the token has read permission
-
+        //Todo handle when principal is null
         String principalName = principal.getName();
 
         Optional<User> foundUser = userServiceImpl.findByEmail(principalName);
@@ -74,7 +77,7 @@ public class TodoListController {
 
     @PutMapping (value = "/todo",  produces = "application/json")
     public ResponseEntity<Todo> updateTodo(@RequestBody TodoRequestBody todoRequest) throws ResourceNotFoundException {
-        // Todo Ensure user passes valid token, and the token the correct permissions
+
         Optional<Todo> existingTodo = todoService.findById(todoRequest.getId());
 
         if(existingTodo.isEmpty()){
@@ -83,6 +86,7 @@ public class TodoListController {
 
         Todo updatedTodo = new Todo(
                 existingTodo.get().getId(),
+                existingTodo.get().getName(),
                 !todoRequest.getDescription().isEmpty() ? todoRequest.getDescription() : existingTodo.get().getDescription(),
                 todoRequest.getIsComplete() != existingTodo.get().isComplete() ? todoRequest.getIsComplete() : existingTodo.get().isComplete(),
                 todoRequest.getDueDate() != null ? todoRequest.getDueDate() : existingTodo.get().getDueDate(),

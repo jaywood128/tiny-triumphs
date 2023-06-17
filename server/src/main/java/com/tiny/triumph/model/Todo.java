@@ -26,6 +26,8 @@ public class Todo {
     // @JoinColumn annotation defines the actual physical mapping on the owning side //
     @JoinColumn(name="user_id")
     public User user;
+    @NotEmpty
+    public String name;
 
     @Size(min = 1, max = 300, message
             = "The description should be between 1 and 300 characters")
@@ -45,15 +47,17 @@ public class Todo {
     public Todo() {
     }
 
-    public Todo(String description, boolean isComplete, LocalDateTime dueDate, Priority priority, User user) {
+    public Todo(String name, String description, boolean isComplete, LocalDateTime dueDate, Priority priority, User user) {
+        this.name = name;
         this.description = description;
         this.isComplete = isComplete;
         this.dueDate = dueDate;
         this.priority = priority;
         this.user = user;
     }
-    public Todo(int id, String description, boolean isComplete, LocalDateTime dueDate, Priority priority,  User user) {
+    public Todo(int id, String name, String description, boolean isComplete, LocalDateTime dueDate, Priority priority,  User user) {
         this.id = id;
+        this.name = name;
         this.description = description;
         this.isComplete = isComplete;
         this.dueDate = dueDate;
@@ -61,10 +65,12 @@ public class Todo {
         this.user = user;
     }
 
-    public Todo(String description, boolean isComplete, LocalDateTime dueDate) {
-        this.description = description;
-        this.isComplete = isComplete;
-        this.dueDate = dueDate;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -123,19 +129,6 @@ public class Todo {
         return user;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Todo todo = (Todo) o;
-        return isComplete == todo.isComplete && Objects.equals(id, todo.id) && description.equals(todo.description) && Objects.equals(dueDate, todo.dueDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, description, isComplete, dueDate);
-    }
-
     public Priority getPriority() {
         return priority;
     }
@@ -146,5 +139,17 @@ public class Todo {
 
     public boolean getIsComplete() {
         return isComplete;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Todo todo)) return false;
+        return getId() == todo.getId() && isComplete() == todo.isComplete() && Objects.equals(getUser(), todo.getUser()) && Objects.equals(getName(), todo.getName()) && Objects.equals(getDescription(), todo.getDescription()) && Objects.equals(getDueDate(), todo.getDueDate()) && getPriority() == todo.getPriority();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUser(), getName(), getDescription(), isComplete(), getDueDate(), getPriority());
     }
 }
