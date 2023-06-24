@@ -180,25 +180,21 @@ const TodosPage: React.FC<TodoProps> = (props: TodoProps) => {
   const render = () => {
     if (todos.length > 0) {
       return (
-        <div className="w-6/12 max-w-full h-auto bg-white rounded-lg shadow-md shadow-slate-600 font-normal">
-          {/* <div className="flex"> */}
-          <div className="flex justify-start w-2/10 h-auto p-6 space-x-5">
-            <div>
-              <Link
-                className="text-xl active:border-solid active:border-b-2 active:border-customBlue visited:font-bold hover:border-solid hover:border-b-4 hover:border-customBlue hover:font-medium p-2"
-                href="/tiny-triumphs"
-              >
-                Notifications
-              </Link>
-            </div>
-            <div>
-              <Link
-                className="text-xl active:border-solid active:border-b-2 active:border-customBlue visited:font-bold hover:border-solid hover:border-b-4 hover:border-customBlue hover:font-medium p-2"
-                href="/tiny-triumphs"
-              >
-                Todos
-              </Link>
-            </div>
+        <div className="flex flex-col align-center w-1/2 max-w-full min-w-0 overflow-auto h-8/12 mt-10 mb-5 bg-white rounded-lg shadow-md shadow-slate-600 font-normal">
+          <div className="flex-none flex-grow-0 flex-shrink-0 w-250 p-6 space-x-5 ml-3">
+            <Link
+              className="font-normal text-xl active:border-solid active:border-b-4 active:border-customBlue visited:font-bold hover:border-solid hover:border-b-4 hover:border-customBlue hover:font-semibold p-2"
+              href="/tiny-triumphs"
+            >
+              Notifications
+            </Link>
+
+            <Link
+              className="font-normal text-xl active:border-solid active:border-b-4 active:border-customBlue visited:font-bold hover:border-solid hover:border-b-4 hover:border-customBlue hover:font-semibold p-2"
+              href="/tiny-triumphs"
+            >
+              Todos
+            </Link>
           </div>
           <ul className="last:border-b-2 last:border-solid last:border-slate-200">
             {todos.map((todo: Todo | undefined) => (
@@ -229,7 +225,6 @@ const TodosPage: React.FC<TodoProps> = (props: TodoProps) => {
     } else {
       return (
         <div className="w-6/12 max-w-full h-auto bg-white rounded-lg shadow-md shadow-slate-600 font-normal">
-          {/* <div className="flex"> */}
           <div className="flex justify-start w-2/10 h-auto p-6 space-x-5">
             <div>
               <Link
@@ -297,7 +292,7 @@ const TodosPage: React.FC<TodoProps> = (props: TodoProps) => {
   }, [hidePlusIcon]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-screen bg-stone-200 shadow-lg shaddow-slate-950">
+    <div className="flex items-center justify-center w-full h-screen bg-stone-200 shadow-lg shaddow-slate-950 p-10">
       {render()}
     </div>
   );
